@@ -1,4 +1,4 @@
-window.requestAnimFrame = (function(){
+window.requestAnimFrame = (function () {
   return  window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame    ||
@@ -17,15 +17,15 @@ function AssetManager() {
   this.soundsQueue = [];
 }
 
-AssetManager.prototype.queueDownload = function(path) {
+AssetManager.prototype.queueDownload = function (path) {
   this.downloadQueue.push(path);
 }
 
-AssetManager.prototype.queueSound = function(id, path) {
+AssetManager.prototype.queueSound = function (id, path) {
   this.soundsQueue.push({id: id, path: path});
 }
 
-AssetManager.prototype.downloadAll = function(callback) {
+AssetManager.prototype.downloadAll = function (callback) {
   if (this.downloadQueue.length === 0 && this.soundsQueue.length === 0) {
     callback();
   }
@@ -36,14 +36,14 @@ AssetManager.prototype.downloadAll = function(callback) {
     var path = this.downloadQueue[i];
     var img = new Image();
     var that = this;
-    img.addEventListener("load", function() {
+    img.addEventListener("load", function () {
       console.log(this.src + ' is loaded');
       that.successCount += 1;
       if (that.isDone()) {
           callback();
       }
     }, false);
-    img.addEventListener("error", function() {
+    img.addEventListener("error", function () {
       that.errorCount += 1;
       if (that.isDone()) {
           callback();
@@ -54,7 +54,7 @@ AssetManager.prototype.downloadAll = function(callback) {
   }
 }
 
-AssetManager.prototype.downloadSounds = function(callback) {
+AssetManager.prototype.downloadSounds = function (callback) {
   var that = this;
   soundManager.onready(function() {
     console.log('soundManager ready');
@@ -67,7 +67,7 @@ AssetManager.prototype.downloadSounds = function(callback) {
   });
 }
 
-AssetManager.prototype.downloadSound = function(id, path, callback) {
+AssetManager.prototype.downloadSound = function (id, path, callback) {
   var that = this;
   this.cache[path] = soundManager.createSound({
     id: id,
@@ -83,18 +83,104 @@ AssetManager.prototype.downloadSound = function(id, path, callback) {
   });
 }
 
-AssetManager.prototype.getSound = function(path) {
+AssetManager.prototype.getSound = function (path) {
   return this.cache[path];
 }
 
-AssetManager.prototype.getAsset = function(path) {
+AssetManager.prototype.getAsset = function (path) {
   return this.cache[path];
 }
 
-AssetManager.prototype.isDone = function() {
+AssetManager.prototype.isDone = function () {
   return ((this.downloadQueue.length + this.soundsQueue.length) == this.successCount + this.errorCount);
 }
 
+function Timer() {
+  this.gameTime = 0;
+  this.maxStep = 0.05;
+  this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+  var wallCurrent = Date.now();
+  var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+  this.wallLastTimestamp = wallCurrent;
+  
+  var gameDelta = Math.min(wallDelta, this.maxStep);
+  this.gameTime += gameDelta;
+  return gameDelta;
+}
+
+function GameEngine() {
+  this.entities = [];
+  this.key = null;
+  this.timer = new Timer();
+  this.surfaceWidth = null;
+  this.surfaceHeight = null;
+  this.halfSurfaceWidth = null;
+  this.halfSurfaceHeight = null;
+}
+
+GameEngine.prototype.init = function (ctx) {
+  console.log('game initialized');
+  this.ctx = ctx;
+  this.surfaceWidth = this.ctx.canvas.width;
+  this.surfaceHeight = this.ctx.canvas.height;
+  this.halfSurfaceWidth = this.surfaceWidth/2;
+  this.halfSurfaceHeight = this.surfaceHeight/2;
+  this.startInput();
+}
+
+GameEngine.prototype.start = function () {
+  console.log("starting game");
+  var that = this;
+  (function gameLoop () {
+      that.loop();
+      requestAnimFrame(gameLoop, that.ctx.canvas);
+  })();
+}
+
+GameEngine.prototype.startInput = function () {
+  
+}
+
+GameEngine.prototype.addEntity = function (entity) {
+    this.entities.push(entity);
+}
+
+GameEngine.prototype.draw = function (callback) {
+  this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  for (var i = 0; i < this.entities.length; i++) {
+    this.entities[i].draw(this.ctx);
+  }
+  if (callback) {
+    callback(this);
+  }
+}
+
+GameEngine.prototype.update = function () {
+  var entitiesCount = this.entities.length;
+  
+  for (var i = 0; i < entitiesCount; i++) {
+    var entity = this.entities[i];
+    if (!entity.removeFromWorld) {
+      entity.update();
+    }
+  }
+  
+  for (var i = this.entities.length-1; i >= 0; --i) {
+    if (this.entities[i].removeFromWorld) {
+      this.entities.splice(i, 1);
+    }
+  }
+}
+
+GameEngine.prototype.loop = function () {
+  this.clockTick = this.timer.tick();
+  this.update();
+  this.draw();
+  this.key = null;
+}
 
 
 
