@@ -30,7 +30,7 @@ AssetManager.prototype.downloadAll = function(callback) {
     callback();
   }
   
-  this.downloadSounds(callback);
+  //this.downloadSounds(callback);
   
   for (var i = 0; i < this.downloadQueue.length; i++) {
     var path = this.downloadQueue[i];
@@ -94,3 +94,25 @@ AssetManager.prototype.getAsset = function(path) {
 AssetManager.prototype.isDone = function() {
   return ((this.downloadQueue.length + this.soundsQueue.length) == this.successCount + this.errorCount);
 }
+
+
+
+
+var canvas = document.getElementById('surface');
+var ctx = canvas.getContext('2d');
+var game = null;
+var ASSET_MANAGER = new AssetManager();
+
+ASSET_MANAGER.queueDownload('img/enemyShip.png');
+ASSET_MANAGER.queueDownload('img/laserGreen.png');
+ASSET_MANAGER.queueDownload('img/laserGreenShot.png');
+ASSET_MANAGER.queueDownload('img/laserRed.png');
+ASSET_MANAGER.queueDownload('img/laserRedShot.png');
+ASSET_MANAGER.queueDownload('img/life.png');
+ASSET_MANAGER.queueDownload('img/player.png');
+
+ASSET_MANAGER.downloadAll(function() {
+  console.log('complete');
+  //game.init(ctx);
+  //game.start();
+});
