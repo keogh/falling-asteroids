@@ -150,9 +150,9 @@ GameEngine.prototype.startInput = function () {
     var code = e.keyCode;
     if ([LEFT, RIGHT, FIRE].indexOf(code) !== -1) {
       that.key = code;
+      e.stopPropagation();
+      e.preventDefault();
     }
-    e.stopPropagation();
-    e.preventDefault();
   });
 }
 
