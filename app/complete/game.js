@@ -127,6 +127,7 @@ function GameEngine() {
   this.surfaceHeight = null;
   this.halfSurfaceWidth = null;
   this.halfSurfaceHeight = null;
+  this.stop = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -136,6 +137,7 @@ GameEngine.prototype.init = function (ctx) {
   this.surfaceHeight = this.ctx.canvas.height;
   this.halfSurfaceWidth = this.surfaceWidth/2;
   this.halfSurfaceHeight = this.surfaceHeight/2;
+  this.animId = null;
   this.startInput();
 }
 
@@ -143,8 +145,9 @@ GameEngine.prototype.start = function () {
   console.log("starting game");
   var that = this;
   (function gameLoop () {
-      that.loop();
-      requestAnimFrame(gameLoop, that.ctx.canvas);
+    if (that.stop) return;
+    that.loop();
+    requestAnimFrame(gameLoop, that.ctx.canvas);
   })();
 }
 
