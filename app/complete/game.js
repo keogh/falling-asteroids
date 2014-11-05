@@ -268,16 +268,23 @@ Player.prototype.shoot = function () {
 
 function Asteriod(game) {
   Entity.call(this, game);
-  this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
-  this.speed = getRandom(40, 150);
+  if (getRandom(1, 10) > 5) {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
+  } else {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidSmall.png');
+  }
+  this.speed = getRandom(40, 100);
   this.setCoords();
   this.m = Math.floor((this.game.player.y - this.y) / (this.game.player.x - this.x));
+  if (this.m == 0) this.m = 1;
+  else if (this.m > 0 && this.m > 5) this.m = 5;
+  else if (this.m < 0 && this.m < -5) this.m = -5;
 }
 Asteriod.prototype = new Entity();
 Asteriod.prototype.constructor = Asteriod;
 
 Asteriod.prototype.setCoords = function () {
-  this.y = this.sprite.height;
+  this.y = -this.sprite.height;
   this.x = getRandom(0, game.surfaceWidth);
 }
 
@@ -287,7 +294,7 @@ Asteriod.prototype.draw = function (ctx) {
 }
 
 Asteriod.prototype.update = function () {
-  this.x += this.m * this.speed * this.game.clockTick;
+  this.x += this.m  * this.speed/2 * this.game.clockTick;
   this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
   if (this.outsideScreen()) {
     this.removeFromWorld = true;
@@ -313,6 +320,10 @@ FallingAsteroids.prototype.start = function () {
 }
 
 FallingAsteroids.prototype.update = function () {
+  if (this.lastAsteroidAddedAt == null || (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+    this.addEntity(new Asteriod(this));
+    this.lastAsteroidAddedAt = this.timer.gameTime;
+  }
   GameEngine.prototype.update.call(this);
 }
 
