@@ -216,6 +216,28 @@ Entity.prototype.outsideScreen = function() {
 }
 
 
+function Player(game) {
+  var asset = ASSET_MANAGER.getAsset('img/player.png')
+  Entity.call(this, game, game.surfaceWidth/2, game.surfaceHeight - asset.height - 5);
+  this.sprite = asset;
+}
+Player.prototype = new Entity();
+Player.prototype.constructor = Player;
+
+Player.prototype.update = function () {
+  Entity.prototype.update.call(this);
+}
+
+Player.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Player.prototype.shoot = function () {
+  
+}
+
+
 
 var canvas = document.getElementById('surface');
 var ctx = canvas.getContext('2d');
