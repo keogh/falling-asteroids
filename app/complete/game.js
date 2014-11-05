@@ -13,6 +13,10 @@ LEFT = 37;
 RIGHT = 39;
 FIRE = 40;
 
+function getRandom(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function AssetManager() {
   this.successCount = 0;
   this.errorCount = 0;
@@ -262,6 +266,39 @@ Player.prototype.shoot = function () {
 
 }
 
+function Asteriod(game) {
+  Entity.call(this, game);
+  this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
+  this.speed = getRandom(40, 150);
+  this.setCoords();
+  this.m = Math.floor((this.game.player.y - this.y) / (this.game.player.x - this.x));
+}
+Asteriod.prototype = new Entity();
+Asteriod.prototype.constructor = Asteriod;
+
+Asteriod.prototype.setCoords = function () {
+  this.y = this.sprite.height;
+  this.x = getRandom(0, game.surfaceWidth);
+}
+
+Asteriod.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Asteriod.prototype.update = function () {
+  this.x += this.m * this.speed * this.game.clockTick;
+  this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  }
+}
+
+Asteriod.prototype.outsideScreen = function () {
+  return (this.x > this.game.surfaceWidth || this.x < 0 ||
+    this.y > this.game.surfaceHeight);
+}
+
 function FallingAsteroids() {
   GameEngine.call(this);
 }
@@ -271,6 +308,7 @@ FallingAsteroids.prototype.constructor = FallingAsteroids;
 FallingAsteroids.prototype.start = function () {
   this.player = new Player(this);
   this.addEntity(this.player);
+  this.addEntity(new Asteriod(this));
   GameEngine.prototype.start.call(this);
 }
 
@@ -289,6 +327,8 @@ var ctx = canvas.getContext('2d');
 var game = new FallingAsteroids();
 var ASSET_MANAGER = new AssetManager();
 
+ASSET_MANAGER.queueDownload('img/asteroidBig.png');
+ASSET_MANAGER.queueDownload('img/asteroidSmall.png');
 ASSET_MANAGER.queueDownload('img/enemyShip.png');
 ASSET_MANAGER.queueDownload('img/laserGreen.png');
 ASSET_MANAGER.queueDownload('img/laserGreenShot.png');
