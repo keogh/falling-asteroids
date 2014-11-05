@@ -11,7 +11,7 @@ window.requestAnimFrame = (function () {
 
 LEFT = 37;
 RIGHT = 39;
-FIRE = 40;
+FIRE = 32;
 
 function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -128,6 +128,7 @@ function GameEngine() {
   this.halfSurfaceWidth = null;
   this.halfSurfaceHeight = null;
   this.stop = false;
+  this.keyFire = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -137,7 +138,6 @@ GameEngine.prototype.init = function (ctx) {
   this.surfaceHeight = this.ctx.canvas.height;
   this.halfSurfaceWidth = this.surfaceWidth/2;
   this.halfSurfaceHeight = this.surfaceHeight/2;
-  this.animId = null;
   this.startInput();
 }
 
@@ -157,6 +157,15 @@ GameEngine.prototype.startInput = function () {
     var code = e.keyCode;
     if ([LEFT, RIGHT, FIRE].indexOf(code) !== -1) {
       that.key = code;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener("keyup", function (e) {
+    var code = e.keyCode;
+    if (code === FIRE) {
+      that.keyFire = true;
       e.stopPropagation();
       e.preventDefault();
     }
@@ -199,6 +208,7 @@ GameEngine.prototype.loop = function () {
   this.update();
   this.draw();
   this.key = null;
+  this.keyFire = false;
 }
 
 function Entity(game, x, y) {
@@ -257,6 +267,9 @@ Player.prototype.update = function () {
   if (this.x + this.sprite.width / 2 > this.game.surfaceWidth) {
     this.x = this.game.surfaceWidth - 1 - this.sprite.width / 2;
   }
+  if (this.game.keyFire) {
+    this.shoot();
+  }
   Entity.prototype.update.call(this);
 }
 
@@ -266,7 +279,30 @@ Player.prototype.draw = function (ctx) {
 }
 
 Player.prototype.shoot = function () {
+  var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
+  this.game.addEntity(bullet);
+}
 
+function Bullet(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRed.png');
+  this.speed = 580;
+}
+Bullet.prototype = new Entity();
+Bullet.prototype.constructor = Bullet;
+
+Bullet.prototype.update = function () {
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  } else {
+    this.y -= this.speed * this.game.clockTick; 
+  }
+  Entity.prototype.update.call(this);
+}
+
+Bullet.prototype.draw = function (ctx) {
+  ctx.drawImage(this.sprite, this.x, this.y);
+  Entity.prototype.draw.call(this, ctx);
 }
 
 function Asteriod(game) {
