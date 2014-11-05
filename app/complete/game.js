@@ -218,7 +218,7 @@ Entity.prototype.outsideScreen = function() {
 
 function Player(game) {
   var asset = ASSET_MANAGER.getAsset('img/player.png')
-  Entity.call(this, game, game.surfaceWidth/2, game.surfaceHeight - asset.height - 5);
+  Entity.call(this, game, game.surfaceWidth/2, game.surfaceHeight - asset.height/ 2  - 10);
   this.sprite = asset;
 }
 Player.prototype = new Entity();
@@ -234,14 +234,34 @@ Player.prototype.draw = function (ctx) {
 }
 
 Player.prototype.shoot = function () {
-  
+
+}
+
+function FallingAsteroids() {
+  GameEngine.call(this);
+}
+FallingAsteroids.prototype = new GameEngine();
+FallingAsteroids.prototype.constructor = FallingAsteroids;
+
+FallingAsteroids.prototype.start = function () {
+  this.player = new Player(this);
+  this.addEntity(this.player);
+  GameEngine.prototype.start.call(this);
+}
+
+FallingAsteroids.prototype.update = function () {
+  GameEngine.prototype.update.call(this);
+}
+
+FallingAsteroids.prototype.draw = function() {
+  GameEngine.prototype.draw.call(this);
 }
 
 
 
 var canvas = document.getElementById('surface');
 var ctx = canvas.getContext('2d');
-var game = null;
+var game = new FallingAsteroids();
 var ASSET_MANAGER = new AssetManager();
 
 ASSET_MANAGER.queueDownload('img/enemyShip.png');
@@ -254,6 +274,6 @@ ASSET_MANAGER.queueDownload('img/player.png');
 
 ASSET_MANAGER.downloadAll(function() {
   console.log('complete');
-  //game.init(ctx);
-  //game.start();
+  game.init(ctx);
+  game.start();
 });
