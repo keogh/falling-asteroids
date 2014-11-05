@@ -9,6 +9,10 @@ window.requestAnimFrame = (function () {
     };
 })();
 
+LEFT = 37;
+RIGHT = 39;
+FIRE = 40;
+
 function AssetManager() {
   this.successCount = 0;
   this.errorCount = 0;
@@ -141,7 +145,15 @@ GameEngine.prototype.start = function () {
 }
 
 GameEngine.prototype.startInput = function () {
-  
+  var that = this;
+  document.addEventListener("keydown", function (e) {
+    var code = e.keyCode;
+    if ([LEFT, RIGHT, FIRE].indexOf(code) !== -1) {
+      that.key = code;
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  });
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -220,11 +232,24 @@ function Player(game) {
   var asset = ASSET_MANAGER.getAsset('img/player.png')
   Entity.call(this, game, game.surfaceWidth/2, game.surfaceHeight - asset.height/ 2  - 10);
   this.sprite = asset;
+  this.speed = 30;
 }
 Player.prototype = new Entity();
 Player.prototype.constructor = Player;
 
 Player.prototype.update = function () {
+  var key = this.game.key;
+  if (key === LEFT) {
+    this.x -= this.speed; //* this.game.clockTick;
+  } else if (key === RIGHT) {
+    this.x += this.speed; //* this.game.clockTick;
+  }
+  if (this.x - this.sprite.width / 2 < 0) {
+    this.x = 1 + this.sprite.width / 2;
+  }
+  if (this.x + this.sprite.width / 2 > this.game.surfaceWidth) {
+    this.x = this.game.surfaceWidth - 1 - this.sprite.width / 2;
+  }
   Entity.prototype.update.call(this);
 }
 
