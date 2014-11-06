@@ -302,7 +302,7 @@ Bullet.prototype.update = function () {
 
   for (var i = 0; i < this.game.entities.length; i++) {
     var asteroid = this.game.entities[i];
-    if (asteroid instanceof Asteriod && this.collidesWith(asteroid)) {
+    if (asteroid instanceof Asteroid && this.collidesWith(asteroid)) {
       console.log('hit!');
       asteroid.explode();
       this.explode();
@@ -356,35 +356,31 @@ BulletExplosion.prototype.draw = function (ctx) {
 }
 
 
-
-function Asteriod(game) {
+function Asteroid(game, isBig, x, y, m) {
   Entity.call(this, game);
-  if (getRandom(1, 10) > 5) {
+  this.isBig = isBig || false;
+  if (this.isBig) {
     this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
   } else {
     this.sprite = ASSET_MANAGER.getAsset('img/asteroidSmall.png');
   }
   this.speed = getRandom(40, 100);
-  this.setCoords();
-  this.m = Math.floor((this.game.player.y - this.y) / (this.game.player.x - this.x));
+  this.x = x || getRandom(0, game.surfaceWidth);
+  this.y = y || -this.sprite.height;
+  this.m = m || Math.floor((this.game.player.y - this.y) / (this.game.player.x - this.x));
   if (this.m == 0) this.m = 1;
   else if (this.m > 0 && this.m > 5) this.m = 5;
   else if (this.m < 0 && this.m < -5) this.m = -5;
 }
-Asteriod.prototype = new Entity();
-Asteriod.prototype.constructor = Asteriod;
+Asteroid.prototype = new Entity();
+Asteroid.prototype.constructor = Asteroid;
 
-Asteriod.prototype.setCoords = function () {
-  this.y = -this.sprite.height;
-  this.x = getRandom(0, game.surfaceWidth);
-}
-
-Asteriod.prototype.draw = function (ctx) {
+Asteroid.prototype.draw = function (ctx) {
   this.drawSpriteCentered(ctx);
   Entity.prototype.draw.call(this, ctx);
 }
 
-Asteriod.prototype.update = function () {
+Asteroid.prototype.update = function () {
   this.x += this.m  * this.speed/2 * this.game.clockTick;
   this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
   if (this.outsideScreen()) {
@@ -392,13 +388,17 @@ Asteriod.prototype.update = function () {
   }
 }
 
-Asteriod.prototype.outsideScreen = function () {
+Asteroid.prototype.outsideScreen = function () {
   return (this.x > this.game.surfaceWidth || this.x < 0 ||
     this.y > this.game.surfaceHeight);
 }
 
-Asteriod.prototype.explode = function () {
+Asteroid.prototype.explode = function () {
   this.removeFromWorld = true;
+  if (this.isBig) {
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m));
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m * -1));
+  }
 }
 
 
@@ -412,13 +412,12 @@ FallingAsteroids.prototype.constructor = FallingAsteroids;
 FallingAsteroids.prototype.start = function () {
   this.player = new Player(this);
   this.addEntity(this.player);
-  this.addEntity(new Asteriod(this));
   GameEngine.prototype.start.call(this);
 }
 
 FallingAsteroids.prototype.update = function () {
   if (this.lastAsteroidAddedAt == null || (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
-    this.addEntity(new Asteriod(this));
+    this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
     this.lastAsteroidAddedAt = this.timer.gameTime;
   }
   GameEngine.prototype.update.call(this);
