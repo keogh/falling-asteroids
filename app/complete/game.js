@@ -312,6 +312,7 @@ Bullet.prototype.update = function () {
       console.log('hit!');
       asteroid.explode();
       this.explode();
+      this.game.score += 10;
     }
   }
 
@@ -412,6 +413,8 @@ Asteroid.prototype.explode = function () {
 function FallingAsteroids() {
   GameEngine.call(this);
   this.showOutlines = false;
+  this.lives = 3;
+  this.score = 0;
 }
 FallingAsteroids.prototype = new GameEngine();
 FallingAsteroids.prototype.constructor = FallingAsteroids;
@@ -430,8 +433,26 @@ FallingAsteroids.prototype.update = function () {
   GameEngine.prototype.update.call(this);
 }
 
-FallingAsteroids.prototype.draw = function() {
-  GameEngine.prototype.draw.call(this);
+FallingAsteroids.prototype.draw = function () {
+  GameEngine.prototype.draw.call(this, function (game) {
+    game.drawLives();
+    game.drawScore();
+  });
+}
+
+FallingAsteroids.prototype.drawLives = function () {
+  if (this.lives == 0) return;
+  var asset = ASSET_MANAGER.getAsset('img/life.png');
+  for (var i = 0; i < this.lives; i++) {
+    var x = i * asset.width;
+    this.ctx.drawImage(asset, x, 1);
+  }
+}
+
+FallingAsteroids.prototype.drawScore = function () {
+  this.ctx.fillStyle = "red";
+  this.ctx.font = "bold 2em Arial";
+  this.ctx.fillText("Score: " + this.score, 1, 55);
 }
 
 
