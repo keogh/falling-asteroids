@@ -222,13 +222,15 @@ Entity.prototype.update = function() {
 }
 
 Entity.prototype.draw = function(ctx) {
-  // if (this.game.showOutlines && this.radius) {
-  //   ctx.beginPath();
-  //   ctx.strokeStyle = "green";
-  //   ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
-  //   ctx.stroke();
-  //   ctx.closePath();
-  // }
+  if (this.game.showOutlines) {
+    var halfWidth = this.sprite.width / 2;
+    var halfHeight = this.sprite.height / 2;
+    ctx.beginPath();
+    ctx.rect(this.x - halfWidth, this.y - halfHeight, this.sprite.width, this.sprite.height);
+    ctx.strokeStyle = "green";
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 
 Entity.prototype.drawSpriteCentered = function(ctx) {
@@ -297,12 +299,32 @@ Bullet.prototype.update = function () {
   } else {
     this.y -= this.speed * this.game.clockTick; 
   }
+
+  for (var i = 0; i < this.game.entities.length; i++) {
+    var asteroid = this.game.entities[i];
+    if (asteroid instanceof Asteriod && this.collidesWith(asteroid)) {
+      console.log('hit!');
+      this.removeFromWorld = true;
+    }
+  }
+
   Entity.prototype.update.call(this);
 }
 
 Bullet.prototype.draw = function (ctx) {
   ctx.drawImage(this.sprite, this.x, this.y);
   Entity.prototype.draw.call(this, ctx);
+}
+
+Bullet.prototype.collidesWith = function (asteroid) {
+  var aX = asteroid.x - asteroid.sprite.width/2;
+  var aY = asteroid.y - asteroid.sprite.height/2;
+  var aW = asteroid.sprite.width;
+  var aH = asteroid.sprite.height;
+  return this.x < aX + aW &&
+    this.x + this.sprite.width > aX &&
+    this.y < aY + aH &&
+    this.y + this.sprite.height > aY;
 }
 
 function Asteriod(game) {
@@ -347,6 +369,7 @@ Asteriod.prototype.outsideScreen = function () {
 
 function FallingAsteroids() {
   GameEngine.call(this);
+  this.showOutlines = true;
 }
 FallingAsteroids.prototype = new GameEngine();
 FallingAsteroids.prototype.constructor = FallingAsteroids;
