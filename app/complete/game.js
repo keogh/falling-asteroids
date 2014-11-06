@@ -304,7 +304,8 @@ Bullet.prototype.update = function () {
     var asteroid = this.game.entities[i];
     if (asteroid instanceof Asteriod && this.collidesWith(asteroid)) {
       console.log('hit!');
-      this.removeFromWorld = true;
+      asteroid.explode();
+      this.explode();
     }
   }
 
@@ -326,6 +327,35 @@ Bullet.prototype.collidesWith = function (asteroid) {
     this.y < aY + aH &&
     this.y + this.sprite.height > aY;
 }
+
+Bullet.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.addEntity(new BulletExplosion(this.game, this.x, this.y));
+}
+
+function BulletExplosion(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRedShot.png');
+  this.duration = 0.25;
+  this.initialTime = Date.now();
+}
+BulletExplosion.prototype = new Entity();
+BulletExplosion.prototype.constructor = BulletExplosion;
+
+BulletExplosion.prototype.update = function () {
+  var duration = (Date.now() - this.initialTime) / 1000;
+  if (duration >= this.duration) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+
+BulletExplosion.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+
 
 function Asteriod(game) {
   Entity.call(this, game);
@@ -367,9 +397,14 @@ Asteriod.prototype.outsideScreen = function () {
     this.y > this.game.surfaceHeight);
 }
 
+Asteriod.prototype.explode = function () {
+  this.removeFromWorld = true;
+}
+
+
 function FallingAsteroids() {
   GameEngine.call(this);
-  this.showOutlines = true;
+  this.showOutlines = false;
 }
 FallingAsteroids.prototype = new GameEngine();
 FallingAsteroids.prototype.constructor = FallingAsteroids;
