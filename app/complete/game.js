@@ -1,3 +1,8 @@
+soundManager.url = '../swf/';
+soundManager.flashVersion = 9;
+soundManager.debugFlash = false;
+soundManager.debugMode = false;
+
 window.requestAnimFrame = (function () {
   return  window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
@@ -38,7 +43,7 @@ AssetManager.prototype.downloadAll = function (callback) {
     callback();
   }
   
-  //this.downloadSounds(callback);
+  this.downloadSounds(callback);
   
   for (var i = 0; i < this.downloadQueue.length; i++) {
     var path = this.downloadQueue[i];
@@ -283,6 +288,7 @@ Player.prototype.draw = function (ctx) {
 Player.prototype.shoot = function () {
   var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
   this.game.addEntity(bullet);
+  ASSET_MANAGER.getSound('audio/bullet.mp3').play();
 }
 
 function Bullet(game, x, y) {
@@ -399,6 +405,7 @@ Asteroid.prototype.explode = function () {
     this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m));
     this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m * -1));
   }
+  ASSET_MANAGER.getSound('audio/asteroid_boom.mp3').play();
 }
 
 
@@ -443,6 +450,9 @@ ASSET_MANAGER.queueDownload('img/laserRed.png');
 ASSET_MANAGER.queueDownload('img/laserRedShot.png');
 ASSET_MANAGER.queueDownload('img/life.png');
 ASSET_MANAGER.queueDownload('img/player.png');
+ASSET_MANAGER.queueSound('asteroid-boom', 'audio/asteroid_boom.mp3');
+ASSET_MANAGER.queueSound('bullet', 'audio/bullet.mp3');
+ASSET_MANAGER.queueSound('player-boom', 'audio/player_boom.mp3');
 
 ASSET_MANAGER.downloadAll(function() {
   console.log('complete');
