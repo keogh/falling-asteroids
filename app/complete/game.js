@@ -291,6 +291,12 @@ Player.prototype.shoot = function () {
   ASSET_MANAGER.getSound('audio/bullet.mp3').play();
 }
 
+Player.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.playerDies();
+  ASSET_MANAGER.getSound('audio/player_boom.mp3').play();
+}
+
 function Bullet(game, x, y) {
   Entity.call(this, game, x, y);
   this.sprite = ASSET_MANAGER.getAsset('img/laserRed.png');
@@ -392,7 +398,25 @@ Asteroid.prototype.update = function () {
   this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
   if (this.outsideScreen()) {
     this.removeFromWorld = true;
+  } else if (!this.removeFromWorld && this.collidesWith(this.game.player)) {
+    this.removeFromWorld = true;
+    this.game.player.explode();
   }
+}
+
+Asteroid.prototype.collidesWith = function (player) {
+  var aX = this.x - this.sprite.width/2;
+  var aY = this.y - this.sprite.height/2;
+  var aW = this.sprite.width;
+  var aH = this.sprite.height;
+  var pX = player.x - player.sprite.width/2;
+  var pY = player.y - player.sprite.height/2;
+  var pW = player.sprite.width;
+  var pH = player.sprite.height;
+  return aX < pX + pW &&
+    aX + aW > pX &&
+    aY < pY + pH &&
+    aY + aH > pY;
 }
 
 Asteroid.prototype.outsideScreen = function () {
@@ -413,19 +437,27 @@ Asteroid.prototype.explode = function () {
 function FallingAsteroids() {
   GameEngine.call(this);
   this.showOutlines = false;
-  this.lives = 3;
+  this.lives = 0;
   this.score = 0;
 }
 FallingAsteroids.prototype = new GameEngine();
 FallingAsteroids.prototype.constructor = FallingAsteroids;
 
 FallingAsteroids.prototype.start = function () {
-  this.player = new Player(this);
-  this.addEntity(this.player);
+  this.resetPlayer();
+  this.dying = false;
+  this.startDying = null;
   GameEngine.prototype.start.call(this);
 }
 
 FallingAsteroids.prototype.update = function () {
+  if (this.dying) {
+    var delta = (Date.now() - this.startDying) / 1000;
+    if (delta > 2) {
+      this.resetPlayer();
+    }
+    if (delta < 4) return;
+  }
   if (this.lastAsteroidAddedAt == null || (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
     this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
     this.lastAsteroidAddedAt = this.timer.gameTime;
@@ -455,6 +487,32 @@ FallingAsteroids.prototype.drawScore = function () {
   this.ctx.fillText("Score: " + this.score, 1, 55);
 }
 
+FallingAsteroids.prototype.playerDies = function () {
+  this.lives -= 1;
+  this.dying = true;
+  this.startDying = Date.now();
+}
+
+FallingAsteroids.prototype.resetPlayer = function () {
+  this.dying = false;
+  if (this.lives < 0) {
+    this.gameOver();
+    return;
+  }
+  this.player = new Player(this);
+  this.addEntity(this.player);
+}
+
+FallingAsteroids.prototype.gameOver = function () {
+  console.log('game over');
+  var that = this;
+  setTimeout(function () {
+    that.ctx.fillStyle = "green";
+    that.ctx.font = "bold 4em Arial";
+    that.ctx.fillText("GAME OVER", that.surfaceWidth/2 - 200, 350);
+  }, 100);
+  this.stop = true;
+}
 
 
 var canvas = document.getElementById('surface');
