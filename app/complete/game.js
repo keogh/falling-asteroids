@@ -403,6 +403,7 @@ Asteroid.prototype.update = function () {
     this.removeFromWorld = true;
     this.game.player.explode();
   }
+  Entity.prototype.update.call(this);
 }
 
 Asteroid.prototype.collidesWith = function (player) {
