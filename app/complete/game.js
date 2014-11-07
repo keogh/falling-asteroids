@@ -437,7 +437,7 @@ Asteroid.prototype.explode = function () {
 function FallingAsteroids() {
   GameEngine.call(this);
   this.showOutlines = false;
-  this.lives = 0;
+  this.lives = 2;
   this.score = 0;
 }
 FallingAsteroids.prototype = new GameEngine();
