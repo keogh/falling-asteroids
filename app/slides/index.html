@@ -453,6 +453,123 @@ GameEngine.prototype.draw = function (callback) {
         </section>
       </article>
 
+      <article>
+        <h3>The Player</h3>
+        <section>
+          <pre>
+function Player(game) {
+  var asset = ASSET_MANAGER.getAsset('img/player.png')
+  Entity.call(this, game, 
+    game.surfaceWidth/2, game.surfaceHeight - asset.height/ 2  - 10);
+  this.sprite = asset;
+  this.speed = 30;
+}
+Player.prototype = new Entity();
+Player.prototype.constructor = Player;
+
+Player.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Player.prototype.update = function () {Entity.prototype.update.call(this);}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding The Player</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.start = function () {
+  <span class="important">this.player = new Player(this);</span>
+  <span class="important">this.addEntity(this.player);</span>
+  GameEngine.prototype.start.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+
+      <article class="fill">
+        <h3>The Player</h3>
+        <iframe src="/ph005"></iframe>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+LEFT = 37;
+RIGHT = 39;
+FIRE = 32;
+
+function GameEngine() {
+  ...
+  this.key = null;
+  ...
+}
+
+GameEngine.prototype.init = function (ctx) {
+  this.ctx = ctx;
+  this.surfaceWidth = this.ctx.canvas.width;
+  this.surfaceHeight = this.ctx.canvas.height;
+  this.halfSurfaceWidth = this.surfaceWidth/2;
+  this.halfSurfaceHeight = this.surfaceHeight/2;
+  <span class="important">this.startInput();</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+GameEngine.prototype.startInput = function () {
+  var that = this;
+  document.addEventListener("keydown", function (e) {
+    var code = e.keyCode;
+    if ([LEFT, RIGHT, FIRE].indexOf(code) !== -1) {
+      that.key = code;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+Player.prototype.update = function () {
+  var key = this.game.key;
+  if (key === LEFT) {
+    this.x -= this.speed;
+  } else if (key === RIGHT) {
+    this.x += this.speed;
+  }
+  if (this.x - this.sprite.width / 2 < 0) {
+    this.x = 1 + this.sprite.width / 2;
+  }
+  if (this.x + this.sprite.width / 2 > this.game.surfaceWidth) {
+    this.x = this.game.surfaceWidth - 1 - this.sprite.width / 2;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Moving the Player</h3>
+        <iframe src="/ph006"></iframe>
+      </article>
+
+  
     </section>
   </body>
 </html>
