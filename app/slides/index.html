@@ -22,7 +22,7 @@
 
   <body style='display: none'>
 
-    <section class='slides layout-regular template-io2011'>
+    <section class='slides layout-widescreen template-io2011'>
       
       <!-- Your slides (<article>s) go here. Delete or comment out the
            slides below. -->
@@ -76,253 +76,196 @@
       </article>
 
       <article>
-        <h3>
-          Slide with bullet points and a longer title, just because we
-          can make it longer
-        </h3>
-        <ul>
-          <li>
-            Use this template to create your presentation
-          </li>
-          <li>
-            Use the provided color palette, box and arrow graphics, and
-            chart styles
-          </li>
-          <li>
-            Instructions are provided to assist you in using this
-            presentation template effectively
-          </li>
-          <li>
-            At all times strive to maintain Google's corporate look and feel
-          </li>
-        </ul>
+        <h3>The Parts</h3>
       </article>
 
       <article>
-        <h3>
-          Slide with bullet points that builds
-        </h3>
-        <ul class="build">
-          <li>
-            This is an example of a list
-          </li>
-          <li>
-            The list items fade in
-          </li>
-          <li>
-            Last one!
-          </li>
-        </ul>
-
-        <div class="build">
-          <p>Any element with child nodes can build.</p>
-          <p>It doesn't have to be a list.</p>
-        </div>
-      </article>
-
-      <article class='smaller'>
-        <h3>
-          Slide with bullet points (small font)
-        </h3>
-        <ul>
-          <li>
-            Use this template to create your presentation
-          <li>
-            Use the provided color palette, box and arrow graphics, and
-            chart styles
-          <li>
-            Instructions are provided to assist you in using this
-            presentation template effectively
-          <li>
-            At all times strive to maintain Google's corporate look and feel
-        </ul>
-      </article>
-
-      <article>
-        <h3>
-          Slide with a table
-        </h3>
-        
-        <table>
-          <tr>
-            <th>
-              Name
-            <th>
-              Occupation
-          <tr>
-            <td>
-              Luke Mahé
-            <td>
-              V.P. of Keepin’ It Real
-          <tr>
-            <td>
-              Marcin Wichary
-            <td>
-              The Michael Bay of Doodles
-        </table>
-      </article>
-      
-      <article class='smaller'>
-        <h3>
-          Slide with a table (smaller text)
-        </h3>
-        
-        <table>
-          <tr>
-            <th>
-              Name
-            <th>
-              Occupation
-          <tr>
-            <td>
-              Luke Mahé
-            <td>
-              V.P. of Keepin’ It Real
-          <tr>
-            <td>
-              Marcin Wichary
-            <td>
-              The Michael Bay of Doodles
-        </table>
-      </article>
-      
-      <article>
-        <h3>
-          Styles
-        </h3>
-        <ul>
-          <li>
-            <span class='red'>class="red"</span>
-          <li>
-            <span class='blue'>class="blue"</span>
-          <li>
-            <span class='green'>class="green"</span>
-          <li>
-            <span class='yellow'>class="yellow"</span>
-          <li>
-            <span class='black'>class="black"</span>
-          <li>
-            <span class='white'>class="white"</span>
-          <li>
-            <b>bold</b> and <i>italic</i>
-        </ul>
-      </article>
-      
-      <article>
-        <h2>
-          Segue slide
-        </h2>
-      </article>
-
-      <article>
-        <h3>
-          Slide with an image
-        </h3>
-        <p>
-          <img style='height: 500px' src='images/example-graph.png'>
-        </p>
-        <div class='source'>
-          Source: Sergey Brin
-        </div>
-      </article>
-
-      <article>
-        <h3>
-          Slide with an image (centered)
-        </h3>
-        <p>
-          <img class='centered' style='height: 500px' src='images/example-graph.png'>
-        </p>
-        <div class='source'>
-          Source: Larry Page
-        </div>
+        <h3>The Canvas</h3>
+        <section>
+          <pre class="prettyprint">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title>Falling Asteroids&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;canvas id="surface" width="870" height="680">&lt;/canvas&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+          </pre>
+        </section>
       </article>
 
       <article class='fill'>
-        <h3>
-          Image filling the slide (with optional header)
-        </h3>
-        <p>
-          <img src='images/example-cat.jpg'>
-        </p>
-        <div class='source white'>
-          Source: Eric Schmidt
-        </div>
+        <h3>Empty Canvas</h3>
+        <iframe src="/ph001"></iframe> 
       </article>
 
       <article>
-        <h3>
-          This slide has some code
-        </h3>
-        <section>
-        <pre>
-&lt;script type='text/javascript'&gt;
-  // Say hello world until the user starts questioning
-  // the meaningfulness of their existence.
-  function helloWorld(world) {
-    for (var i = 42; --i &gt;= 0;) {
-      alert('Hello ' + String(world));
-    }
-  }
-&lt;/script&gt;
-&lt;style&gt;
-  p { color: pink }
-  b { color: blue }
-  u { color: 'umber' }
-&lt;/style&gt;
-</pre>
-        </section>
+        <h3>Rendering Images</h3>
+        <ul>
+          <li>Asset Manager</li>
+          <li>Canvas drawImage(img, x, y)</li>
+        </ul>
       </article>
       
-      <article class='smaller'>
-        <h3>
-          This slide has some code (small font)
-        </h3>
+      <article>
+        <h3>The Asset Manager</h3>
         <section>
-        <pre>
-&lt;script type='text/javascript'&gt;
-  // Say hello world until the user starts questioning
-  // the meaningfulness of their existence.
-  function helloWorld(world) {
-    for (var i = 42; --i &gt;= 0;) {
-      alert('Hello ' + String(world));
-    }
+          <pre>
+function AssetManager() {
+  this.successCount = 0;
+  this.errorCount = 0;
+  this.cache = {};
+  this.downloadQueue = [];
+}
+
+AssetManager.prototype.queueDownload = function (path) {
+  this.downloadQueue.push(path);
+}
+
+AssetManager.prototype.isDone = function () {
+  return (this.downloadQueue.length == this.successCount + this.errorCount);
+}
+          </pre>
+        <section>
+      </article>
+      
+      <article>
+        <h3>Asset Manager (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadAll = function (callback) {
+  for (var i = 0; i < this.downloadQueue.length; i++) {
+    var path = this.downloadQueue[i];
+    var img = new Image();
+    var that = this;
+    img.addEventListener("load", function () {
+      that.successCount += 1;
+      if (that.isDone()) { callback(); }
+    });
+    img.addEventListener("error", function () {
+      that.errorCount += 1;
+      if (that.isDone()) { callback(); }
+    });
+    img.src = path;
+    this.cache[path] = img;
   }
-&lt;/script&gt;
-&lt;style&gt;
-  p { color: pink }
-  b { color: blue }
-  u { color: 'umber' }
-&lt;/style&gt;
-</pre>
+}
+          </pre>
+        <section>
+      </article>
+      
+      <article>
+        <h3>Rendering Images</h3>
+        <section>
+          <pre>
+ASSET_MANAGER.queueDownload('img/player.png');
+
+ASSET_MANAGER.downloadAll(function () {
+  var x = 435, y = 642;
+  var sprite = ASSET_MANAGER.getAsset('img/player.png');
+  
+  // draw image centered
+  ctx.drawImage(sprite, x - sprite.width/2, y - sprite.height/2);
+});
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph002"></iframe>
+      </article>
+
+      <article>
+        <h3>Game Loop</h3>
+        <img src="img/gameloop.png" class="centered">
+      </article>
+
+      <article>
+        <h3>Giving Life!</h3>
+        <ul>
+          <li>Game Engine and Entities</li>
+          <li>Loop update() and draw()</li>
+          <li>Use requestAnimationFrame(callback, element)</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Game Engine</h3>
+        <section>
+          <pre>
+function GameEngine() {
+  this.entities = [];
+  this.ctx = null;
+  this.lastUpdateTimestamp = null;
+  this.deltaTime = null;
+}
+
+GameEngine.prototype.draw = function(callback) {
+  // loop through all entities, call draw()
+}
+
+GameEngine.prototype.update = function() {
+  // loop through all entities, call update()
+}
+          </pre>
         </section>
       </article>
       
       <article>
-        <q>
-          The best way to predict the future is to invent it.
-        </q>
-        <div class='author'>
-          Alan Kay
-        </div>
+        <h3>Game Loop</h3>
+        <section>
+          <pre>
+GameEngine.prototype.loop = function() {
+  var now = Date.now();
+  this.deltaTime = now - this.lastUpdateTimestamp;
+  this.update();
+  this.draw();
+  this.lastUpdateTimestamp = now;
+}
+          </pre>
+        </section>
       </article>
       
-      <article class='smaller'>
-        <q>
-          A distributed system is one in which the failure of a computer 
-          you didn’t even know existed can render your own computer unusable.
-        </q>
-        <div class='author'>
-          Leslie Lamport
-        </div>
+      <article>
+        <h3>Game engine start</h3>
+        <section>
+          <pre>
+GameEngine.prototype.start = function() {
+  this.lastUpdateTimestamp = Date.now();
+  var that = this;
+  (function gameLoop() {
+      that.loop();
+      requestAnimFrame(gameLoop, that.ctx.canvas);
+  })();
+}
+          </pre>
+        </section>
       </article>
       
-      <article class='nobackground'>
-        <h3>
-          A slide with an embed + title
-        </h3>
+      <article>
+        <h3>requestAnimationFrame()</h3>
+        <section>
+          <pre>
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
+            function(/* function */ callback, /* DOMElement */ element){
+              window.setTimeout(callback, 1000 / 60);
+            };
+})();
+          </pre>
+          <p>Learn more: <a href="http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/" target="_blank">requestAnimationFrame</a></p>
+        </section>
+      </article>
+      
+      <article>
+        <h3>Entities</h3>
         
-        <iframe src='http://www.google.com/doodle4google/history.html'></iframe>
       </article>
 
       <article class='nobackground'>

@@ -126,6 +126,7 @@ Timer.prototype.tick = function () {
 
 function GameEngine() {
   this.entities = [];
+  this.ctx = null;
   this.key = null;
   this.timer = new Timer();
   this.surfaceWidth = null;
