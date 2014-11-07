@@ -265,29 +265,80 @@ window.requestAnimFrame = (function(){
       
       <article>
         <h3>Entities</h3>
-        
+        <section>
+          <pre>
+function Entity(game, x, y) {
+  this.game = game;
+  this.x = x;
+  this.y = y;
+  this.removeFromWorld = false;
+}
+
+Entity.prototype.update = function() {}
+
+Entity.prototype.draw = function() {}
+          </pre>
+        </section>
       </article>
 
-      <article class='nobackground'>
-        <iframe src='http://www.google.com/doodle4google/history.html'></iframe>
+      <article>
+        <h3>Entities: Draw centered</h3>
+        <section>
+          <pre>
+Entity.prototype.drawSpriteCentered = function(ctx) {
+  if (this.sprite && this.x && this.y) {
+    var x = this.x - this.sprite.width/2;
+    var y = this.y - this.sprite.height/2;
+    ctx.drawImage(this.sprite, x, y);
+  }
+}
+          </pre>
+        </section>
       </article>
 
-      <article class='fill'>
-        <h3>
-          Full-slide embed with (optional) slide title on top
-        </h3>
-        <iframe src='http://www.google.com/doodle4google/history.html'></iframe>
+      <article>
+        <h3>The Asteroids</h3>
+        <section>
+          <pre>
+function Asteroid(game, isBig, x, y, m) {
+  Entity.call(this, game);
+  this.isBig = isBig || false;
+  if (this.isBig) {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
+  } else {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidSmall.png');
+  }
+  this.speed = getRandom(40, 100);
+  this.x = x || getRandom(0, this.game.surfaceWidth);
+  this.y = y || -this.sprite.height;
+  this.m = m || getRandom(1, 5);
+  if (this.x > this.game.surfaceWidth/2) this.m *= -1;
+} 
+Asteroid.prototype = new Entity();
+Asteroid.prototype.constructor = Asteroid;
+          </pre>
+        </section>
       </article>
       
       <article>
-        <h3>
-          Thank you!
-        </h3>
-        
-        <ul>
-          <li>
-            <a href='http://www.google.com'>google.com</a>
-        </ul>
+        <h3>The Asteroids: Draw and Update</h3>
+        <section>
+          <pre>
+Asteroid.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2;
+  this.y += Math.abs(this.m) * this.speed;
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
       </article>
 
     </section>
