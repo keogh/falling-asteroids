@@ -568,6 +568,13 @@ function addGeneralStyle() {
   el.name = 'apple-mobile-web-app-capable';
   el.content = 'yes';
   document.querySelector('head').appendChild(el);
+
+  //Personal styles
+  var el = document.createElement('link');
+  el.rel = 'stylesheet';
+  el.type = 'text/css';
+  el.href = 'styles.css';
+  document.body.appendChild(el);
 };
 
 function makeBuildLists() {
