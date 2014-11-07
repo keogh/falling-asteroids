@@ -87,7 +87,6 @@ GameEngine.prototype.init = function (ctx) {
 }
 
 GameEngine.prototype.start = function() {
-  this.lastUpdateTimestamp = Date.now();
   var that = this;
   (function gameLoop() {
       that.loop();

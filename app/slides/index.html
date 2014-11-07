@@ -218,11 +218,8 @@ GameEngine.prototype.update = function() {
         <section>
           <pre>
 GameEngine.prototype.loop = function() {
-  var now = Date.now();
-  this.deltaTime = now - this.lastUpdateTimestamp;
   this.update();
   this.draw();
-  this.lastUpdateTimestamp = now;
 }
           </pre>
         </section>
@@ -233,7 +230,6 @@ GameEngine.prototype.loop = function() {
         <section>
           <pre>
 GameEngine.prototype.start = function() {
-  this.lastUpdateTimestamp = Date.now();
   var that = this;
   (function gameLoop() {
       that.loop();
@@ -340,6 +336,12 @@ Asteroid.prototype.update = function () {
           </pre>
         </section>
       </article>
+
+      <article class="fill">
+        <iframe src="/ph003"></iframe>
+      </article>
+
+      <article></article>
 
     </section>
   </body>
