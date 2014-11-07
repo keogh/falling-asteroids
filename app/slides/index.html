@@ -341,7 +341,117 @@ Asteroid.prototype.update = function () {
         <iframe src="/ph003"></iframe>
       </article>
 
-      <article></article>
+      <article>
+        <h3>Fix timing</h3>
+        <section>
+          <pre>
+function Timer() {
+  this.gameTime = 0;
+  this.maxStep = 0.05;
+  this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+  var wallCurrent = Date.now();
+  var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+  this.wallLastTimestamp = wallCurrent;
+  
+  var gameDelta = Math.min(wallDelta, this.maxStep);
+  this.gameTime += gameDelta;
+  return gameDelta;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Fix Timing</h3>
+        <section>
+          <pre>
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2 <span class="important">* this.game.clockItck;</span>
+  this.y += Math.abs(this.m) * this.speed <span class="important">* this.game.clockItck;</span>
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+
+          <pre>
+GameEngine.prototype.loop = function () {
+  <span class="important">this.clockTick = this.timer.tick();</span>
+  ...
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Time Fixed!</h3>
+        <iframe src="/ph004"></iframe>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.update = function () {
+  if (this.lastAsteroidAddedAt == null || 
+    (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+    this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
+    this.lastAsteroidAddedAt = this.timer.gameTime;
+  }
+  GameEngine.prototype.update.call(this);
+}
+
+FallingAsteroids.prototype.draw = function () {
+  GameEngine.prototype.draw.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.update = function() {
+  var entitiesCount = this.entities.length;
+  
+  for (var i = 0; i < entitiesCount; i++) {
+    var entity = this.entities[i];
+    if (!entity.removeFromWorld) {
+      entity.update();
+    }
+  }
+  
+  for (var i = this.entities.length-1; i >= 0; --i) {
+    if (this.entities[i].removeFromWorld) {
+      this.entities.splice(i, 1);
+    }
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.draw = function (callback) {
+  this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  for (var i = 0; i < this.entities.length; i++) {
+    this.entities[i].draw(this.ctx);
+  }
+  if (callback) {
+    callback(this);
+  }
+}
+          </pre>
+        </section>
+      </article>
 
     </section>
   </body>
