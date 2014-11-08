@@ -1,0 +1,15 @@
+
+.slides.template-io2011 article.biglogo {
+  background: #FFFFFF url(img/nearsoft-logo.png) 50% 50% no-repeat;
+  background-size: 600px;
+}
+
+.slides.template-io2011 > article:not(.nobackground):not(.biglogo) {
+  background: url(img/colorbar.png) 0 600px repeat-x, url(img/nearsoft-logo.png) 815px 615px no-repeat;
+  background-size: 100%, 225px;
+  background-color: #FFFFFF;
+}
+
+.important {
+  background-color: #FFFF00;
+}
