@@ -14,6 +14,19 @@ module.exports = function (grunt) {
           keepalive: true
         }
       }
+    },
+    clean: ['dist'],
+    copy: {
+      main: {
+        files: [
+          {
+            expand: true, 
+            cwd: 'app/',
+            src: ['**'],
+            dest: 'dist'
+          }
+        ]
+      }
     }
     // watch: {
     //   livereload: {
@@ -42,4 +55,6 @@ module.exports = function (grunt) {
   grunt.registerTask('server', [
     'connect:server'
   ]);
+
+  grunt.registerTask('dist', ['clean', 'copy:main']);
 }
