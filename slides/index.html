@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+           
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Presentation</title>
+
+    <meta charset='utf-8'>
+    <script src='slides.js'></script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen template-io2011'>
+      
+      <!-- Your slides (<article>s) go here. Delete or comment out the
+           slides below. -->
+        
+        
+      
+      <article class='biglogo'>
+      </article>
+
+      <article>
+        <h1>
+          Falling Asteroids
+        </h1>
+        <h2>2D videogame with HTML5 Canvas</h2>
+        <p>
+          Isaac Zepeda
+          <br>
+          Nov 8, 2014
+        </p>
+      </article>
+
+      <article>
+        <h3>Hi, I'm Isaac Zepeda</h3>
+        <p>Software Engineer at Nearsoft</p>
+        <p>Ruby, JavaScript</p>
+        <p>Twitter: <a href="http://twitter.com/el_keogh">@el_keogh</a></p>
+        <p>Blog: <a href="http://hardcoders.mx">hardcoders.mx</a></p>
+        <p><img class="centered" src="img/isaac.jpg" style="width: 400px"></p>
+      </article>
+
+      <article>
+        <h3>Why?</h3>
+        <p>#YOLO</p>
+        <p>Bigger Resume</p>
+        <p>My dream's life</p>
+        <p>I want to become a Game Developer</p>
+        <p>Fun!</p>
+      </article>
+
+      <article>
+        <h2>Let's create a Game</h2>
+      </article>
+
+      <article class='fill'>
+        <h3>Falling Asteroids</h3>
+        <iframe src="/complete"></iframe>
+      </article>
+
+      <article>
+        <h3>The Parts</h3>
+        <ul>
+          <li>The Canvas</li>
+          <li>Render Images</li>
+          <li>The Asset Manager</li>
+          <li>Game Loop</li>
+          <li>Entities</li>
+          <li>Timer tick</li>
+          <li>Move a player (input)</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>The Parts (cont.)</h3>
+        <ul>
+          <li>Shoot!</li>
+          <li>Collitions</li>
+          <li>Lives and Score</li>
+          <li>Sounds</li>
+          <li>Game Over!</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>The Canvas</h3>
+        <section>
+          <pre class="prettyprint">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title>Falling Asteroids&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;canvas id="surface" width="870" height="680">&lt;/canvas&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+          </pre>
+        </section>
+      </article>
+
+      <article class='fill'>
+        <h3>Empty Canvas</h3>
+        <iframe src="/ph001"></iframe> 
+      </article>
+
+      <article>
+        <h3>Rendering Images</h3>
+        <ul>
+          <li>Asset Manager</li>
+          <li>Canvas drawImage(img, x, y)</li>
+        </ul>
+      </article>
+      
+      <article>
+        <h3>The Asset Manager</h3>
+        <section>
+          <pre>
+function AssetManager() {
+  this.successCount = 0;
+  this.errorCount = 0;
+  this.cache = {};
+  this.downloadQueue = [];
+}
+
+AssetManager.prototype.queueDownload = function (path) {
+  this.downloadQueue.push(path);
+}
+
+AssetManager.prototype.isDone = function () {
+  return (this.downloadQueue.length == this.successCount + this.errorCount);
+}
+          </pre>
+        <section>
+      </article>
+      
+      <article>
+        <h3>Asset Manager (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadAll = function (callback) {
+  for (var i = 0; i < this.downloadQueue.length; i++) {
+    var path = this.downloadQueue[i];
+    var img = new Image();
+    var that = this;
+    img.addEventListener("load", function () {
+      that.successCount += 1;
+      if (that.isDone()) { callback(); }
+    });
+    img.addEventListener("error", function () {
+      that.errorCount += 1;
+      if (that.isDone()) { callback(); }
+    });
+    img.src = path;
+    this.cache[path] = img;
+  }
+}
+          </pre>
+        <section>
+      </article>
+      
+      <article>
+        <h3>Rendering Images</h3>
+        <section>
+          <pre>
+ASSET_MANAGER.queueDownload('img/player.png');
+
+ASSET_MANAGER.downloadAll(function () {
+  var x = 435, y = 642;
+  var sprite = ASSET_MANAGER.getAsset('img/player.png');
+  
+  // draw image centered
+  ctx.drawImage(sprite, x - sprite.width/2, y - sprite.height/2);
+});
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph002"></iframe>
+      </article>
+
+      <article>
+        <h3>Game Loop</h3>
+        <img src="img/gameloop.png" class="centered">
+      </article>
+
+      <article>
+        <h3>Giving Life!</h3>
+        <ul>
+          <li>Game Engine and Entities</li>
+          <li>Loop update() and draw()</li>
+          <li>Use requestAnimationFrame(callback, element)</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Game Engine</h3>
+        <section>
+          <pre>
+function GameEngine() {
+  this.entities = [];
+  this.ctx = null;
+  this.lastUpdateTimestamp = null;
+  this.deltaTime = null;
+}
+
+GameEngine.prototype.draw = function(callback) {
+  // loop through all entities, call draw()
+}
+
+GameEngine.prototype.update = function() {
+  // loop through all entities, call update()
+}
+          </pre>
+        </section>
+      </article>
+      
+      <article>
+        <h3>Game Loop</h3>
+        <section>
+          <pre>
+GameEngine.prototype.loop = function() {
+  this.update();
+  this.draw();
+}
+          </pre>
+        </section>
+      </article>
+      
+      <article>
+        <h3>Game engine start</h3>
+        <section>
+          <pre>
+GameEngine.prototype.start = function() {
+  var that = this;
+  (function gameLoop() {
+      that.loop();
+      requestAnimFrame(gameLoop, that.ctx.canvas);
+  })();
+}
+          </pre>
+        </section>
+      </article>
+      
+      <article>
+        <h3>requestAnimationFrame()</h3>
+        <section>
+          <pre>
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
+            function(/* function */ callback, /* DOMElement */ element){
+              window.setTimeout(callback, 1000 / 60);
+            };
+})();
+          </pre>
+          <p>Learn more: <a href="http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/" target="_blank">requestAnimationFrame</a></p>
+        </section>
+      </article>
+      
+      <article>
+        <h3>Entities</h3>
+        <section>
+          <pre>
+function Entity(game, x, y) {
+  this.game = game;
+  this.x = x;
+  this.y = y;
+  this.removeFromWorld = false;
+}
+
+Entity.prototype.update = function() {}
+
+Entity.prototype.draw = function() {}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Entities: Draw centered</h3>
+        <section>
+          <pre>
+Entity.prototype.drawSpriteCentered = function(ctx) {
+  if (this.sprite && this.x && this.y) {
+    var x = this.x - this.sprite.width/2;
+    var y = this.y - this.sprite.height/2;
+    ctx.drawImage(this.sprite, x, y);
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>The Asteroids</h3>
+        <section>
+          <pre>
+function Asteroid(game, isBig, x, y, m) {
+  Entity.call(this, game);
+  this.isBig = isBig || false;
+  if (this.isBig) {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidBig.png');
+  } else {
+    this.sprite = ASSET_MANAGER.getAsset('img/asteroidSmall.png');
+  }
+  this.speed = getRandom(40, 100);
+  this.x = x || getRandom(0, this.game.surfaceWidth);
+  this.y = y || -this.sprite.height;
+  this.m = m || getRandom(1, 5);
+  if (this.x > this.game.surfaceWidth/2) this.m *= -1;
+} 
+Asteroid.prototype = new Entity();
+Asteroid.prototype.constructor = Asteroid;
+          </pre>
+        </section>
+      </article>
+      
+      <article>
+        <h3>The Asteroids: Draw and Update</h3>
+        <section>
+          <pre>
+Asteroid.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2;
+  this.y += Math.abs(this.m) * this.speed;
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph003"></iframe>
+      </article>
+
+      <article>
+        <h3>Fix timing</h3>
+        <section>
+          <pre>
+function Timer() {
+  this.gameTime = 0;
+  this.maxStep = 0.05;
+  this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+  var wallCurrent = Date.now();
+  var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+  this.wallLastTimestamp = wallCurrent;
+  
+  var gameDelta = Math.min(wallDelta, this.maxStep);
+  this.gameTime += gameDelta;
+  return gameDelta;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Fix Timing</h3>
+        <section>
+          <pre>
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2 <span class="important">* this.game.clockItck;</span>
+  this.y += Math.abs(this.m) * this.speed <span class="important">* this.game.clockItck;</span>
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+
+          <pre>
+GameEngine.prototype.loop = function () {
+  <span class="important">this.clockTick = this.timer.tick();</span>
+  ...
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Time Fixed!</h3>
+        <iframe src="/ph004"></iframe>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.update = function () {
+  if (this.lastAsteroidAddedAt == null || 
+    (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+    this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
+    this.lastAsteroidAddedAt = this.timer.gameTime;
+  }
+  GameEngine.prototype.update.call(this);
+}
+
+FallingAsteroids.prototype.draw = function () {
+  GameEngine.prototype.draw.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.update = function() {
+  var entitiesCount = this.entities.length;
+  
+  for (var i = 0; i < entitiesCount; i++) {
+    var entity = this.entities[i];
+    if (!entity.removeFromWorld) {
+      entity.update();
+    }
+  }
+  
+  for (var i = this.entities.length-1; i >= 0; --i) {
+    if (this.entities[i].removeFromWorld) {
+      this.entities.splice(i, 1);
+    }
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding and Drawing Asteroids (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.draw = function (callback) {
+  this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  for (var i = 0; i < this.entities.length; i++) {
+    this.entities[i].draw(this.ctx);
+  }
+  if (callback) {
+    callback(this);
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>The Player</h3>
+        <section>
+          <pre>
+function Player(game) {
+  var asset = ASSET_MANAGER.getAsset('img/player.png')
+  Entity.call(this, game, 
+    game.surfaceWidth/2, game.surfaceHeight - asset.height/ 2  - 10);
+  this.sprite = asset;
+  this.speed = 30;
+}
+Player.prototype = new Entity();
+Player.prototype.constructor = Player;
+
+Player.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+
+Player.prototype.update = function () {Entity.prototype.update.call(this);}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Adding The Player</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.start = function () {
+  <span class="important">this.player = new Player(this);</span>
+  <span class="important">this.addEntity(this.player);</span>
+  GameEngine.prototype.start.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+
+      <article class="fill">
+        <h3>The Player</h3>
+        <iframe src="/ph005"></iframe>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+LEFT = 37;
+RIGHT = 39;
+FIRE = 32;
+
+function GameEngine() {
+  ...
+  this.key = null;
+  ...
+}
+
+GameEngine.prototype.init = function (ctx) {
+  this.ctx = ctx;
+  this.surfaceWidth = this.ctx.canvas.width;
+  this.surfaceHeight = this.ctx.canvas.height;
+  this.halfSurfaceWidth = this.surfaceWidth/2;
+  this.halfSurfaceHeight = this.surfaceHeight/2;
+  <span class="important">this.startInput();</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+GameEngine.prototype.startInput = function () {
+  var that = this;
+  document.addEventListener("keydown", function (e) {
+    var code = e.keyCode;
+    if ([LEFT, RIGHT, FIRE].indexOf(code) !== -1) {
+      that.key = code;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Moving the Player</h3>
+        <section>
+          <pre>
+Player.prototype.update = function () {
+  var key = this.game.key;
+  if (key === LEFT) {
+    this.x -= this.speed;
+  } else if (key === RIGHT) {
+    this.x += this.speed;
+  }
+  if (this.x - this.sprite.width / 2 < 0) {
+    this.x = 1 + this.sprite.width / 2;
+  }
+  if (this.x + this.sprite.width / 2 > this.game.surfaceWidth) {
+    this.x = this.game.surfaceWidth - 1 - this.sprite.width / 2;
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Moving the Player</h3>
+        <iframe src="/ph006"></iframe>
+      </article>
+
+      <article>
+        <h2>Let's shoot some madafacas!</h2>
+      </article>
+
+      <article>
+        <h3>Shooting: The Bullet</h3>
+        <section>
+          <pre>
+function Bullet(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRed.png');
+  this.speed = 580;
+}
+Bullet.prototype = new Entity();
+Bullet.prototype.constructor = Bullet;
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: The Bullet</h3>
+        <section>
+          <pre>
+Bullet.prototype.update = function () {
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  } else {
+    this.y -= this.speed * this.game.clockTick; 
+  }
+  Entity.prototype.update.call(this);
+}
+
+Bullet.prototype.draw = function (ctx) {
+  ctx.drawImage(this.sprite, this.x, this.y);
+  Entity.prototype.draw.call(this, ctx);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: Event Binding</h3>
+        <section>
+          <pre>
+GameEngine.prototype.startInput = function () {
+  ...
+  document.addEventListener("keyup", function (e) {
+    var code = e.keyCode;
+    if (code === FIRE) {
+      that.keyFire = true;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: The Player shoots!</h3>
+        <section>
+          <pre>
+Player.prototype.update = function () {
+  ...
+  if (this.game.keyFire) {
+    this.shoot();
+  }
+  Entity.prototype.update.call(this);
+}
+
+Player.prototype.shoot = function () {
+  var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
+  this.game.addEntity(bullet);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Shooting!</h3>        
+        <iframe src="/ph007"></iframe>
+      </article>
+
+      <article>
+        <h3>The Bullet Explosion</h3>
+        <section>
+          <pre>
+function BulletExplosion(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRedShot.png');
+  this.duration = 0.25;
+  this.initialTime = Date.now();
+}
+BulletExplosion.prototype = new Entity();
+BulletExplosion.prototype.constructor = BulletExplosion;
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>The Bullet Explosion</h3>
+        <section>
+          <pre>
+BulletExplosion.prototype.update = function () {
+  var duration = (Date.now() - this.initialTime) / 1000;
+  if (duration >= this.duration) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+
+BulletExplosion.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Bullet Collition</h3>
+        <section>
+          <pre>
+Bullet.prototype.collidesWith = function (asteroid) {
+  var aX = asteroid.x - asteroid.sprite.width/2;
+  var aY = asteroid.y - asteroid.sprite.height/2;
+  var aW = asteroid.sprite.width;
+  var aH = asteroid.sprite.height;
+  return this.x < aX + aW &&
+    this.x + this.sprite.width > aX &&
+    this.y < aY + aH &&
+    this.y + this.sprite.height > aY;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <section>
+          <pre>
+Bullet.prototype.update = function () {
+  ...
+  for (var i = 0; i < this.game.entities.length; i++) {
+    var asteroid = this.game.entities[i];
+    if (asteroid instanceof Asteroid && this.collidesWith(asteroid)) {
+      <span class="important">asteroid.explode();</span>
+      <span class="important">this.explode();</span>
+    }
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Bullet and Asteroid Exposition</h3>
+        <section>
+          <pre>
+Bullet.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.addEntity(new BulletExplosion(this.game, this.x, this.y));
+}
+
+Asteroid.prototype.explode = function () {
+  this.removeFromWorld = true;
+  if (this.isBig) {
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m));
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m * -1));
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph008"></iframe>
+      </article>
+
+      <article>
+        <h3>Asteroid colides with the Player</h3>
+        <section>
+          <pre>
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2 * this.game.clockTick;
+  this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  } else if (!this.removeFromWorld && <span class="important">this.collidesWith(this.game.player</span>)) {
+    <span class="important">this.removeFromWorld = true;</span>
+    <span class="important">this.game.player.explode();</span>
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asteroid colides with the Player</h3>
+        <section>
+          <pre>
+Asteroid.prototype.collidesWith = function (player) {
+  var aX = this.x - this.sprite.width/2;
+  var aY = this.y - this.sprite.height/2;
+  var aW = this.sprite.width;
+  var aH = this.sprite.height;
+  var pX = player.x - player.sprite.width/2;
+  var pY = player.y - player.sprite.height/2;
+  var pW = player.sprite.width;
+  var pH = player.sprite.height;
+  return aX < pX + pW &&
+    aX + aW > pX &&
+    aY < pY + pH &&
+    aY + aH > pY;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Player Dies!</h3>
+        <section>
+          <pre>
+Player.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.playerDies();
+}
+
+FallingAsteroids.prototype.playerDies = function () {
+  this.lives -= 1;
+  this.dying = true;
+  this.startDying = Date.now();
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Player Dies!</h3>
+        <section>
+          <pre>
+function FallingAsteroids() {
+  GameEngine.call(this);
+  this.lives = 2;
+  this.score = 0;
+}
+
+FallingAsteroids.prototype.resetPlayer = function () {
+  this.dying = false;
+  if (this.lives < 0) {
+    this.gameOver();
+    return;
+  }
+  this.player = new Player(this);
+  this.addEntity(this.player);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Wait to reset the Player</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.update = function () {
+  if (this.dying) {
+    var delta = (Date.now() - this.startDying) / 1000;
+    if (delta > 2) {
+      this.resetPlayer();
+    }
+    if (delta < 4) return;
+  }
+  if (this.lastAsteroidAddedAt == null || 
+    (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+    this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
+    this.lastAsteroidAddedAt = this.timer.gameTime;
+  }
+  GameEngine.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Game Over</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.gameOver = function () {
+  var that = this;
+  setTimeout(function () {
+    that.ctx.fillStyle = "green";
+    that.ctx.font = "bold 4em Arial";
+    that.ctx.fillText("GAME OVER", that.surfaceWidth/2 - 200, 350);
+  }, 100);
+  this.stop = true;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Game Over (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.start = function () {
+  var that = this;
+  (function gameLoop () {
+    if (that.stop) return;
+    that.loop();
+    requestAnimFrame(gameLoop, that.ctx.canvas);
+  })();
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Draw lives and score</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.drawLives = function () {
+  if (this.lives == 0) return;
+  var asset = ASSET_MANAGER.getAsset('img/life.png');
+  for (var i = 0; i < this.lives; i++) {
+    var x = i * asset.width;
+    this.ctx.drawImage(asset, x, 1);
+  }
+}
+
+FallingAsteroids.prototype.drawScore = function () {
+  this.ctx.fillStyle = "red";
+  this.ctx.font = "bold 2em Arial";
+  this.ctx.fillText("Score: " + this.score, 1, 55);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Draw lives and score (cont.)</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.draw = function () {
+  GameEngine.prototype.draw.call(this, function (game) {
+    game.drawLives();
+    game.drawScore();
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph009"></iframe>
+      </article>
+
+      <article>
+        <h3>The Sound</h3>
+        <p>Use <a href="http://www.schillmania.com/projects/soundmanager2/" target="blank">SoundManager 2</a></p>
+        <section>
+          <pre>
+function AssetManager() {
+  this.successCount = 0;
+  this.errorCount = 0;
+  this.cache = {};
+  this.downloadQueue = [];
+  <span class="important">this.soundsQueue = [];</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds</h3>
+        <section>
+          <pre>
+AssetManager.prototype.queueSound = function (id, path) {
+  this.soundsQueue.push({id: id, path: path});
+}
+
+AssetManager.prototype.isDone = function () {
+  return ((this.downloadQueue.length + this.soundsQueue.length) == 
+    this.successCount + this.errorCount);
+}
+
+AssetManager.prototype.getSound = function (path) {
+  return this.cache[path];
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadSound = function (id, path, callback) {
+  var that = this;
+  this.cache[path] = soundManager.createSound({
+    id: id,
+    autoLoad: true,
+    url: path,
+    onload: function() {
+      that.successCount += 1;
+      if (that.isDone()) {
+        callback();
+      }
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadSounds = function (callback) {
+  var that = this;
+  soundManager.onready(function() {
+    for (var i = 0; i < that.soundsQueue.length; i++) {
+      that.downloadSound(that.soundsQueue[i].id, that.soundsQueue[i].path, callback);
+    }
+  });
+  soundManager.ontimeout(function() {
+    console.log('SM2 did not start');
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadAll = function (callback) {
+  if (this.downloadQueue.length === 0 && this.soundsQueue.length === 0) {
+    callback();
+  }
+  
+  this.downloadSounds(callback);
+  ...
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Sound in the Game!</h3>
+        <section>
+          <pre>
+Player.prototype.shoot = function () {
+  var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
+  this.game.addEntity(bullet);
+  <span class="important">ASSET_MANAGER.getSound('audio/bullet.mp3').play();</span>
+}
+
+Player.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.playerDies();
+  <span class="important">ASSET_MANAGER.getSound('audio/player_boom.mp3').play();</span>
+}
+
+Asteroid.prototype.explode = function () {
+  ...
+  <span class="important">ASSET_MANAGER.getSound('audio/asteroid_boom.mp3').play();</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph010"></iframe>
+      </article>
+
+      <article>
+        <h1>Game Over!</h1>
+        <h2>Thanks!</h2>
+        <p>The code is on my Github: <a href="https://github.com/keogh/falling-asteroids" target="_blank">https://github.com/keogh/falling-asteroids</a></p>
+        <p>The Slides: <a href="http://keogh.github.io/alling-asteroids/" targe="_blank">http://keogh.github.io/falling-asteroids/slides</a></p>
+        <p><a href="http://twitter.com/el_keogh">@el_keogh</a></p>
+      </article>
+
+    </section>
+  </body>
+</html>
