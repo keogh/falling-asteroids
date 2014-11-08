@@ -926,6 +926,134 @@ FallingAsteroids.prototype.draw = function () {
         <iframe src="/ph009"></iframe>
       </article>
 
+      <article>
+        <h3>The Sound</h3>
+        <p>Use <a href="http://www.schillmania.com/projects/soundmanager2/" target="blank">SoundManager 2</a></p>
+        <section>
+          <pre>
+function AssetManager() {
+  this.successCount = 0;
+  this.errorCount = 0;
+  this.cache = {};
+  this.downloadQueue = [];
+  <span class="important">this.soundsQueue = [];</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds</h3>
+        <section>
+          <pre>
+AssetManager.prototype.queueSound = function (id, path) {
+  this.soundsQueue.push({id: id, path: path});
+}
+
+AssetManager.prototype.isDone = function () {
+  return ((this.downloadQueue.length + this.soundsQueue.length) == 
+    this.successCount + this.errorCount);
+}
+
+AssetManager.prototype.getSound = function (path) {
+  return this.cache[path];
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadSound = function (id, path, callback) {
+  var that = this;
+  this.cache[path] = soundManager.createSound({
+    id: id,
+    autoLoad: true,
+    url: path,
+    onload: function() {
+      that.successCount += 1;
+      if (that.isDone()) {
+        callback();
+      }
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadSounds = function (callback) {
+  var that = this;
+  soundManager.onready(function() {
+    for (var i = 0; i < that.soundsQueue.length; i++) {
+      that.downloadSound(that.soundsQueue[i].id, that.soundsQueue[i].path, callback);
+    }
+  });
+  soundManager.ontimeout(function() {
+    console.log('SM2 did not start');
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asset Manager loads sounds (cont.)</h3>
+        <section>
+          <pre>
+AssetManager.prototype.downloadAll = function (callback) {
+  if (this.downloadQueue.length === 0 && this.soundsQueue.length === 0) {
+    callback();
+  }
+  
+  this.downloadSounds(callback);
+  ...
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Sound in the Game!</h3>
+        <section>
+          <pre>
+Player.prototype.shoot = function () {
+  var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
+  this.game.addEntity(bullet);
+  <span class="important">ASSET_MANAGER.getSound('audio/bullet.mp3').play();</span>
+}
+
+Player.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.playerDies();
+  <span class="important">ASSET_MANAGER.getSound('audio/player_boom.mp3').play();</span>
+}
+
+Asteroid.prototype.explode = function () {
+  ...
+  <span class="important">ASSET_MANAGER.getSound('audio/asteroid_boom.mp3').play();</span>
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph010"></iframe>
+      </article>
+
+      <article>
+        <h1>Game Over!</h1>
+        <h2>Thanks!</h2>
+        <p>The code is on my Github: <a href="https://github.com/keogh/falling-asteroids" target="_blank">https://github.com/keogh/falling-asteroids</a></p>
+        <p>The Slides: <a href="http://keogh.github.io/alling-asteroids/" targe="_blank">http://keogh.github.io/alling-asteroids/</a></p>
+      </article>
+
     </section>
   </body>
 </html>

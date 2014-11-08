@@ -1,3 +1,8 @@
+soundManager.url = '../swf/';
+soundManager.flashVersion = 9;
+soundManager.debugFlash = false;
+soundManager.debugMode = false;
+
 window.requestAnimFrame = (function(){
     return  window.requestAnimationFrame       ||
             window.webkitRequestAnimationFrame ||
@@ -22,32 +27,81 @@ function AssetManager() {
   this.errorCount = 0;
   this.cache = {};
   this.downloadQueue = [];
+  this.soundsQueue = [];
 }
 
 AssetManager.prototype.queueDownload = function (path) {
   this.downloadQueue.push(path);
 }
 
+AssetManager.prototype.queueSound = function (id, path) {
+  this.soundsQueue.push({id: id, path: path});
+}
+
 AssetManager.prototype.isDone = function () {
-  return (this.downloadQueue.length == this.successCount + this.errorCount);
+  return ((this.downloadQueue.length + this.soundsQueue.length) == this.successCount + this.errorCount);
 }
 
 AssetManager.prototype.downloadAll = function (callback) {
+  if (this.downloadQueue.length === 0 && this.soundsQueue.length === 0) {
+    callback();
+  }
+  
+  this.downloadSounds(callback);
+  
   for (var i = 0; i < this.downloadQueue.length; i++) {
     var path = this.downloadQueue[i];
     var img = new Image();
     var that = this;
     img.addEventListener("load", function () {
+      console.log(this.src + ' is loaded');
       that.successCount += 1;
-      if (that.isDone()) { callback(); }
-    });
+      if (that.isDone()) {
+          callback();
+      }
+    }, false);
     img.addEventListener("error", function () {
       that.errorCount += 1;
-      if (that.isDone()) { callback(); }
-    });
+      if (that.isDone()) {
+          callback();
+      }
+    }, false);
     img.src = path;
     this.cache[path] = img;
   }
+}
+
+AssetManager.prototype.downloadSounds = function (callback) {
+  var that = this;
+  soundManager.onready(function() {
+    console.log('soundManager ready');
+    for (var i = 0; i < that.soundsQueue.length; i++) {
+      that.downloadSound(that.soundsQueue[i].id, that.soundsQueue[i].path, callback);
+    }
+  });
+  soundManager.ontimeout(function() {
+    console.log('SM2 did not start');
+  });
+}
+
+AssetManager.prototype.downloadSound = function (id, path, callback) {
+  var that = this;
+  this.cache[path] = soundManager.createSound({
+    id: id,
+    autoLoad: true,
+    url: path,
+    onload: function() {
+      console.log(this.url + ' is loaded');
+      that.successCount += 1;
+      if (that.isDone()) {
+        callback();
+      }
+    }
+  });
+}
+
+AssetManager.prototype.getSound = function (path) {
+  return this.cache[path];
 }
 
 AssetManager.prototype.getAsset = function (path) {
@@ -224,11 +278,13 @@ Player.prototype.draw = function (ctx) {
 Player.prototype.shoot = function () {
   var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
   this.game.addEntity(bullet);
+  ASSET_MANAGER.getSound('audio/bullet.mp3').play();
 }
 
 Player.prototype.explode = function () {
   this.removeFromWorld = true;
   this.game.playerDies();
+  ASSET_MANAGER.getSound('audio/player_boom.mp3').play();
 }
 
 function Bullet(game, x, y) {
@@ -361,6 +417,7 @@ Asteroid.prototype.explode = function () {
     this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m));
     this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m * -1));
   }
+  ASSET_MANAGER.getSound('audio/asteroid_boom.mp3').play();
 }
 
 function FallingAsteroids() {
@@ -453,6 +510,9 @@ ASSET_MANAGER.queueDownload('img/player.png');
 ASSET_MANAGER.queueDownload('img/laserRed.png');
 ASSET_MANAGER.queueDownload('img/laserRedShot.png');
 ASSET_MANAGER.queueDownload('img/life.png');
+ASSET_MANAGER.queueSound('asteroid-boom', 'audio/asteroid_boom.mp3');
+ASSET_MANAGER.queueSound('bullet', 'audio/bullet.mp3');
+ASSET_MANAGER.queueSound('player-boom', 'audio/player_boom.mp3');
 
 ASSET_MANAGER.downloadAll(function () {
   game.init(ctx);
