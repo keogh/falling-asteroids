@@ -36,7 +36,7 @@
         <h1>
           Falling Asteroids
         </h1>
-        <h2>A 2D videogame with HTML5 Canvas</h2>
+        <h2>2D videogame with HTML5 Canvas</h2>
         <p>
           Isaac Zepeda
           <br>
@@ -51,10 +51,6 @@
         <p>Twitter: <a href="http://twitter.com/el_keogh">@el_keogh</a></p>
         <p>Blog: <a href="http://hardcoders.mx">hardcoders.mx</a></p>
         <p><img class="centered" src="img/isaac.jpg" style="width: 400px"></p>
-      </article>
-      
-      <article>
-        <h3>Agenda</h3>
       </article>
 
       <article>
@@ -77,6 +73,26 @@
 
       <article>
         <h3>The Parts</h3>
+        <ul>
+          <li>The Canvas</li>
+          <li>Render Images</li>
+          <li>The Asset Manager</li>
+          <li>Game Loop</li>
+          <li>Entities</li>
+          <li>Timer tick</li>
+          <li>Move a player (input)</li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>The Parts (cont.)</h3>
+        <ul>
+          <li>Shoot!</li>
+          <li>Collitions</li>
+          <li>Lives and Score</li>
+          <li>Sounds</li>
+          <li>Game Over!</li>
+        </ul>
       </article>
 
       <article>
@@ -843,7 +859,8 @@ FallingAsteroids.prototype.update = function () {
     }
     if (delta < 4) return;
   }
-  if (this.lastAsteroidAddedAt == null || (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+  if (this.lastAsteroidAddedAt == null || 
+    (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
     this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
     this.lastAsteroidAddedAt = this.timer.gameTime;
   }
