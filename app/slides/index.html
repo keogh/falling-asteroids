@@ -569,7 +569,99 @@ Player.prototype.update = function () {
         <iframe src="/ph006"></iframe>
       </article>
 
-  
+      <article>
+        <h2>Let's shoot some madafacas!</h2>
+      </article>
+
+      <article>
+        <h3>Shooting: The Bullet</h3>
+        <section>
+          <pre>
+function Bullet(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRed.png');
+  this.speed = 580;
+}
+Bullet.prototype = new Entity();
+Bullet.prototype.constructor = Bullet;
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: The Bullet</h3>
+        <section>
+          <pre>
+Bullet.prototype.update = function () {
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  } else {
+    this.y -= this.speed * this.game.clockTick; 
+  }
+  Entity.prototype.update.call(this);
+}
+
+Bullet.prototype.draw = function (ctx) {
+  ctx.drawImage(this.sprite, this.x, this.y);
+  Entity.prototype.draw.call(this, ctx);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: Event Binding</h3>
+        <section>
+          <pre>
+GameEngine.prototype.startInput = function () {
+  ...
+  document.addEventListener("keyup", function (e) {
+    var code = e.keyCode;
+    if (code === FIRE) {
+      that.keyFire = true;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Shooting: The Player shoots!</h3>
+        <section>
+          <pre>
+Player.prototype.update = function () {
+  ...
+  if (this.game.keyFire) {
+    this.shoot();
+  }
+  Entity.prototype.update.call(this);
+}
+
+Player.prototype.shoot = function () {
+  var bullet = new Bullet(this.game, this.x, this.y - this.sprite.height);
+  this.game.addEntity(bullet);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <h3>Shooting!</h3>        
+        <iframe src="/ph007"></iframe>
+      </article>
+
+      <article>
+        <h3>The Bullet Explosion</h3>
+        <section>
+          <pre>
+            
+          </pre>
+        </section>
+      </article>
+
     </section>
   </body>
 </html>
