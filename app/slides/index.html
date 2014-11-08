@@ -657,9 +657,96 @@ Player.prototype.shoot = function () {
         <h3>The Bullet Explosion</h3>
         <section>
           <pre>
-            
+function BulletExplosion(game, x, y) {
+  Entity.call(this, game, x, y);
+  this.sprite = ASSET_MANAGER.getAsset('img/laserRedShot.png');
+  this.duration = 0.25;
+  this.initialTime = Date.now();
+}
+BulletExplosion.prototype = new Entity();
+BulletExplosion.prototype.constructor = BulletExplosion;
           </pre>
         </section>
+      </article>
+
+      <article>
+        <h3>The Bullet Explosion</h3>
+        <section>
+          <pre>
+BulletExplosion.prototype.update = function () {
+  var duration = (Date.now() - this.initialTime) / 1000;
+  if (duration >= this.duration) {
+    this.removeFromWorld = true;
+  }
+  Entity.prototype.update.call(this);
+}
+
+BulletExplosion.prototype.draw = function (ctx) {
+  this.drawSpriteCentered(ctx);
+  Entity.prototype.draw.call(this, ctx);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Bullet Collition</h3>
+        <section>
+          <pre>
+Bullet.prototype.collidesWith = function (asteroid) {
+  var aX = asteroid.x - asteroid.sprite.width/2;
+  var aY = asteroid.y - asteroid.sprite.height/2;
+  var aW = asteroid.sprite.width;
+  var aH = asteroid.sprite.height;
+  return this.x < aX + aW &&
+    this.x + this.sprite.width > aX &&
+    this.y < aY + aH &&
+    this.y + this.sprite.height > aY;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <section>
+          <pre>
+Bullet.prototype.update = function () {
+  ...
+  for (var i = 0; i < this.game.entities.length; i++) {
+    var asteroid = this.game.entities[i];
+    if (asteroid instanceof Asteroid && this.collidesWith(asteroid)) {
+      <span class="important">asteroid.explode();</span>
+      <span class="important">this.explode();</span>
+    }
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Bullet and Asteroid Exposition</h3>
+        <section>
+          <pre>
+Bullet.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.addEntity(new BulletExplosion(this.game, this.x, this.y));
+}
+
+Asteroid.prototype.explode = function () {
+  this.removeFromWorld = true;
+  if (this.isBig) {
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m));
+    this.game.addEntity(new Asteroid(this.game, false, this.x, this.y, this.m * -1));
+  }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph008"></iframe>
       </article>
 
     </section>
