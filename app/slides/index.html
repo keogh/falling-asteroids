@@ -749,6 +749,183 @@ Asteroid.prototype.explode = function () {
         <iframe src="/ph008"></iframe>
       </article>
 
+      <article>
+        <h3>Asteroid colides with the Player</h3>
+        <section>
+          <pre>
+Asteroid.prototype.update = function () {
+  this.x += this.m  * this.speed/2 * this.game.clockTick;
+  this.y += Math.abs(this.m) * this.speed * this.game.clockTick;
+  if (this.outsideScreen()) {
+    this.removeFromWorld = true;
+  } else if (!this.removeFromWorld && <span class="important">this.collidesWith(this.game.player</span>)) {
+    <span class="important">this.removeFromWorld = true;</span>
+    <span class="important">this.game.player.explode();</span>
+  }
+  Entity.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Asteroid colides with the Player</h3>
+        <section>
+          <pre>
+Asteroid.prototype.collidesWith = function (player) {
+  var aX = this.x - this.sprite.width/2;
+  var aY = this.y - this.sprite.height/2;
+  var aW = this.sprite.width;
+  var aH = this.sprite.height;
+  var pX = player.x - player.sprite.width/2;
+  var pY = player.y - player.sprite.height/2;
+  var pW = player.sprite.width;
+  var pH = player.sprite.height;
+  return aX < pX + pW &&
+    aX + aW > pX &&
+    aY < pY + pH &&
+    aY + aH > pY;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Player Dies!</h3>
+        <section>
+          <pre>
+Player.prototype.explode = function () {
+  this.removeFromWorld = true;
+  this.game.playerDies();
+}
+
+FallingAsteroids.prototype.playerDies = function () {
+  this.lives -= 1;
+  this.dying = true;
+  this.startDying = Date.now();
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Player Dies!</h3>
+        <section>
+          <pre>
+function FallingAsteroids() {
+  GameEngine.call(this);
+  this.lives = 2;
+  this.score = 0;
+}
+
+FallingAsteroids.prototype.resetPlayer = function () {
+  this.dying = false;
+  if (this.lives < 0) {
+    this.gameOver();
+    return;
+  }
+  this.player = new Player(this);
+  this.addEntity(this.player);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Wait to reset the Player</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.update = function () {
+  if (this.dying) {
+    var delta = (Date.now() - this.startDying) / 1000;
+    if (delta > 2) {
+      this.resetPlayer();
+    }
+    if (delta < 4) return;
+  }
+  if (this.lastAsteroidAddedAt == null || (this.timer.gameTime - this.lastAsteroidAddedAt) > 1.5) {
+    this.addEntity(new Asteroid(this, getRandom(1, 10) > 5));
+    this.lastAsteroidAddedAt = this.timer.gameTime;
+  }
+  GameEngine.prototype.update.call(this);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Game Over</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.gameOver = function () {
+  var that = this;
+  setTimeout(function () {
+    that.ctx.fillStyle = "green";
+    that.ctx.font = "bold 4em Arial";
+    that.ctx.fillText("GAME OVER", that.surfaceWidth/2 - 200, 350);
+  }, 100);
+  this.stop = true;
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Game Over (cont.)</h3>
+        <section>
+          <pre>
+GameEngine.prototype.start = function () {
+  var that = this;
+  (function gameLoop () {
+    if (that.stop) return;
+    that.loop();
+    requestAnimFrame(gameLoop, that.ctx.canvas);
+  })();
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Draw lives and score</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.drawLives = function () {
+  if (this.lives == 0) return;
+  var asset = ASSET_MANAGER.getAsset('img/life.png');
+  for (var i = 0; i < this.lives; i++) {
+    var x = i * asset.width;
+    this.ctx.drawImage(asset, x, 1);
+  }
+}
+
+FallingAsteroids.prototype.drawScore = function () {
+  this.ctx.fillStyle = "red";
+  this.ctx.font = "bold 2em Arial";
+  this.ctx.fillText("Score: " + this.score, 1, 55);
+}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>Draw lives and score (cont.)</h3>
+        <section>
+          <pre>
+FallingAsteroids.prototype.draw = function () {
+  GameEngine.prototype.draw.call(this, function (game) {
+    game.drawLives();
+    game.drawScore();
+  });
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="fill">
+        <iframe src="/ph009"></iframe>
+      </article>
+
     </section>
   </body>
 </html>
